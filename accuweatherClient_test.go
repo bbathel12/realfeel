@@ -1,6 +1,8 @@
 package realfeel_test
 
 import (
+	"testing"
+
 	"github.com/bbathel12/realfeel"
 )
 
@@ -113,4 +115,20 @@ func ExampleOutput() {
 	}
 	// Output: {"attachments":[{"image_url":"http://amberandbrice.com/realfeel/realfeeltm.gif"}],"response_type":"in_channel","text":"Weather Data for: City Hall, New Orleans, Louisiana \nLatitude:  29.951977, Longitude: -90.076790\nElevation:      75 ft\nTemperature         :  66.20° \nReal Feel™          :      66.2 \nHumidity            :       37% \nWind Speed          :  7.60 mph \nUV Index            :       2.0 \n","unfurl_links":true,"unfurl_media":true}
 
+}
+
+func TestGeoLookup(T *testing.T) {
+	testzips := [][]string{
+		[]string{"70130", "US/LA/New_Orleans.html"},
+		[]string{"70123", "US/LA/New_Orleans.html"},
+		[]string{"94107", "US/CA/San_Francisco.html"},
+	}
+
+	for _, v := range testzips {
+		query_string := realfeel.GeoLookupRequest(v[0])
+
+		if query_string != v[1] {
+			T.Error(query_string + " Does not equal " + v[1])
+		}
+	}
 }

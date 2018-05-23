@@ -37,6 +37,14 @@ type WeatherData struct {
 	Current  CurrentObservation     `json:"current_observation"`
 }
 
+type GeoLookup struct {
+	Response map[string]interface{} `json:"response"`
+	Location LocationResponse       `json:"location"`
+}
+type LocationResponse struct {
+	RequestUrl string `json:"requesturl"`
+}
+
 // Outputs weather data in a format digestible by slack slash command
 func (w WeatherData) Output() {
 
@@ -132,4 +140,22 @@ func Unmarshal(weatherJson []byte) WeatherData {
 		fmt.Println(err)
 	}
 	return data
+}
+
+func GeoLookupRequest(zip string) (request_url string) {
+	var data GeoLookup
+	url := os.Getenv("API_URL") + os.Getenv("API_KEY") + "/geolookup/q/" + zip + " .json"
+	resp, err := http.Get(url)
+	if err != nil {
+		panic(err)
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	err = json.Unmarshal(body, &data)
+	if err != nil {
+		panic(err)
+	}
+
+	request_url = data.Location.RequestUrl
+	return
 }
