@@ -119,14 +119,13 @@ func ExampleOutput() {
 
 func TestGeoLookup(T *testing.T) {
 	testzips := [][]string{
-		[]string{"70130", "US/LA/New_Orleans.html"},
-		[]string{"70123", "US/LA/New_Orleans.html"},
-		[]string{"94107", "US/CA/San_Francisco.html"},
+		[]string{"70130", "US/LA/New_Orleans.json"},
+		[]string{"70123", "US/LA/New_Orleans.json"},
+		[]string{"94107", "US/CA/San_Francisco.json"},
 	}
 
 	for _, v := range testzips {
 		query_string := realfeel.GeoLookupRequest(v[0])
-
 		if query_string != v[1] {
 			T.Error(query_string + " Does not equal " + v[1])
 		}

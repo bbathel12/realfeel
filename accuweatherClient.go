@@ -4,19 +4,26 @@ package realfeel
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/joho/godotenv"
 )
 
+var zip string
+
 func init() {
 	godotenv.Load()
 	godotenv.Load(".env.cache")
+	var zipPtr *string = flag.String("zip", "70121", "Your zip code")
+	fmt.Println(zip)
+	zip = *zipPtr
 }
 
 // CurrentObservation holds the current weather conditions from
@@ -121,7 +128,12 @@ func WriteCache(data WeatherData) {
 
 // Makes api call to weather underground and returns the response
 func GetData() []byte {
-	url := os.Getenv("API_URL") + os.Getenv("API_KEY") + "/" + os.Getenv("CALL") + os.Getenv("LOCATION_KEY")
+	var request_string string
+
+	request_string = GeoLookupRequest(zip)
+
+	url := os.Getenv("API_URL") + os.Getenv("API_KEY") + "/" + os.Getenv("CALL") + request_string
+	fmt.Println(url)
 	resp, err := http.Get(url)
 	if err != nil {
 		panic(err)
@@ -144,8 +156,11 @@ func Unmarshal(weatherJson []byte) WeatherData {
 
 func GeoLookupRequest(zip string) (request_url string) {
 	var data GeoLookup
-	url := os.Getenv("API_URL") + os.Getenv("API_KEY") + "/geolookup/q/" + zip + " .json"
+
+	url := os.Getenv("API_URL") + os.Getenv("API_KEY") + "/geolookup/q/" + zip + ".json"
+	fmt.Println(url)
 	resp, err := http.Get(url)
+
 	if err != nil {
 		panic(err)
 	}
@@ -157,5 +172,6 @@ func GeoLookupRequest(zip string) (request_url string) {
 	}
 
 	request_url = data.Location.RequestUrl
+	request_url = strings.Replace(request_url, ".html", ".json", 1)
 	return
 }
